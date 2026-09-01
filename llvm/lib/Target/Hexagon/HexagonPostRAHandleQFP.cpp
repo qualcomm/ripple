@@ -232,7 +232,7 @@ private:
   bool HandleMultiReachingDefs();
   bool HandleReachDefOfCopies();
   bool HandleConvertToQfCopies();
-  RegType HasQfUses(NodeAddr<DefNode *>, MachineInstr *);
+  RegType HasQfUses(NodeAddr<DefNode *>, MachineInstr *, RegType);
   void collectConvQFInstr(NodeAddr<DefNode *> &);
   void collectQFUses(NodeAddr<DefNode *>, MachineInstr *DefMI);
   void conditionallyInsert(MachineInstr &, Register &);
@@ -1407,9 +1407,27 @@ bool HexagonPostRAHandleQFP::HandleReachDefOfCopies() {
 
 HexagonPostRAHandleQFP::RegType
 HexagonPostRAHandleQFP::HasQfUses(NodeAddr<DefNode *> CopyDef,
-                                  MachineInstr *CopyMI) {
+                                  MachineInstr *CopyMI, RegType RTy) {
   NodeSet UseSet;
   getAllRealUses(CopyDef, UseSet, LV, DFG);
+
+  // A subregister-to-pair COPY has an implicit HvxWR def. The qf consumer may
+  // be reached through that def rather than the recorded subregister def, so
+  // gather uses from all COPY defs.
+  //
+  // Restrict this to qf copies to avoid creating spurious IEEE-to-qf
+  // conversions.
+  if (RTy != RegType::ieee) {
+    NodeAddr<StmtNode *> CopyStmt = CopyDef.Addr->getOwner(*DFG);
+    for (NodeAddr<DefNode *> DA : CopyStmt.Addr->members_if(DFG->IsDef, *DFG)) {
+      if (DA.Id == CopyDef.Id)
+        continue;
+       Register RR = DA.Addr->getRegRef(*DFG).Id;
+      if (HRI->isFakeReg(RR))
+        continue;
+      getAllRealUses(DA, UseSet, LV, DFG);
+    }
+  }
 
   if (UseSet.size() == 0)
     return RegType::undefined;
@@ -1547,7 +1565,8 @@ bool HexagonPostRAHandleQFP::HandleCopies() {
     // its result back to qf
     // FIXME: don't include the copy if its the last instruction since
     // it is *probably* not possible to insert via BuildMI at the end of BB
-    RTy = HasQfUses(CopyNode, CopyMI);
+    RegType CopyRTy = RTy;
+    RTy = HasQfUses(CopyNode, CopyMI, CopyRTy);
     if (RTy != RegType::ieee && RTy != RegType::undefined &&
         (++CopyMI->getIterator() != CopyMI->getParent()->end())) {
       if (!ConvertToQfCopies.contains(CopyMI)) {
