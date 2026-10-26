@@ -1,20 +1,20 @@
 // REQUIRES: hexagon-registered-target || aarch64-registered-target || x86-registered-target
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
-// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
-// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -I %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv67 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=0 -fsyntax-only -verify=no-fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if hexagon-registered-target %{ %clang_cc1 -triple hexagon -target-cpu hexagonv68 -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if aarch64-registered-target %{ %clang_cc1 -triple aarch64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 %s %}
+// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -std=c11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
+// RUN: %if x86-registered-target %{ %clang_cc1 -triple x86_64-unknown-linux-gnu -fenable-ripple -isystem %S/../../lib/Headers/ripple_include -x c++ -std=c++11 -DEXPECT_FP16=1 -fsyntax-only -verify=fp16 -DRIPPLE_VEC_HEADER=1 %s %}
 
 #ifdef RIPPLE_VEC_HEADER
 #include <__ripple_vec.h>

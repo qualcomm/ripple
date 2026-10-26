@@ -1498,6 +1498,60 @@ spec_reinterp_to_all_src(__bf16, bf16);
 #undef __ripple_reinterp_extra_f16_src
 #undef __ripple_reinterp_extra_bf16_src
 
+template <typename T, typename Val>
+T ripple_reinterp(ripple_block_t BS, Val V) {
+  using RawT = typename __RippleTyTraits::remove_cv<T>::type;
+
+  if constexpr (__is_integral(RawT) && !__is_same(RawT, bool)) {
+    if constexpr (sizeof(RawT) == 1) {
+      if constexpr (__is_signed(RawT))
+        return ripple_reinterp_i8(BS, V);
+      else
+        return ripple_reinterp_u8(BS, V);
+    } else if constexpr (sizeof(RawT) == 2) {
+      if constexpr (__is_signed(RawT))
+        return ripple_reinterp_i16(BS, V);
+      else
+        return ripple_reinterp_u16(BS, V);
+    } else if constexpr (sizeof(RawT) == 4) {
+      if constexpr (__is_signed(RawT))
+        return ripple_reinterp_i32(BS, V);
+      else
+        return ripple_reinterp_u32(BS, V);
+    } else if constexpr (sizeof(RawT) == 8) {
+      if constexpr (__is_signed(RawT))
+        return ripple_reinterp_i64(BS, V);
+      else
+        return ripple_reinterp_u64(BS, V);
+    } else {
+      static_assert(sizeof(RawT) == 1 || sizeof(RawT) == 2 ||
+                      sizeof(RawT) == 4 || sizeof(RawT) == 8,
+                  "unsupported integer width in ripple reinterpet cast");
+    }
+  } else if constexpr (__is_floating_point(RawT)) {
+    if constexpr (sizeof(RawT) == 4)
+      return ripple_reinterp_f32(BS, V);
+    else if constexpr (sizeof(RawT) == 8)
+      return ripple_reinterp_f64(BS, V);
+#if __has_Float16__
+    else if constexpr (__is_same(RawT, _Float16))
+      return ripple_reinterp_f16(BS, V);
+#endif
+#if __has_bf16__
+    else if constexpr (__is_same(RawT, __bf16))
+      return ripple_reinterp_bf16(BS, V);
+#endif
+    else {
+      static_assert(sizeof(RawT) == 4 || sizeof(RawT) == 8,
+                  "unsupported float width in ripple reinterpet cast");
+    }
+  } else {
+      static_assert(__is_integral(RawT) && !__is_same(RawT, bool)  ||
+                      __is_floating_point(T),
+              "Expected integral or floating point type to ripple reinterpret");
+  }
+}
+
 #endif // defined(__cplusplus)
 
 /* _____________________________ Block slicing _______________________________*/

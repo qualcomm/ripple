@@ -1,5 +1,7 @@
 // REQUIRES: hexagon-registered-target || aarch64-registered-target || x86-registered-target
-// RUN: %clang++ -S -fenable-ripple -fno-discard-value-names -Rpass-missed=ripple -O2 -emit-llvm %s -o - 2>&1 | FileCheck %s --implicit-check-not="warning:" --implicit-check-not="remark:" --implicit-check-not="error:"
+// RUN: %if hexagon-registered-target %{ %clangxx -I %S/../../lib/Headers/ripple_include -S -fenable-ripple -fno-discard-value-names -Rpass-missed=ripple --target=hexagon -mhvx -mv81 -O2 -emit-llvm %s -o - 2>&1 | FileCheck %s --check-prefixes=CHECK,BF16 --implicit-check-not="warning:" --implicit-check-not="remark:" --implicit-check-not="error:" %}
+// RUN: %if aarch64-registered-target %{ %clangxx -I %S/../../lib/Headers/ripple_include -S -fenable-ripple -fno-discard-value-names -Rpass-missed=ripple --target=aarch64-unknown-linux-gnu -O2 -emit-llvm %s -o - 2>&1 | FileCheck %s --implicit-check-not="warning:" --implicit-check-not="remark:" --implicit-check-not="error:" %}
+// RUN: %if x86-registered-target %{ %clangxx -I %S/../../lib/Headers/ripple_include -S -fenable-ripple -fno-discard-value-names -Rpass-missed=ripple --target=x86_64-unknown-linux-gnu -O2 -emit-llvm %s -o - 2>&1 | FileCheck %s --check-prefixes=CHECK,BF16 --implicit-check-not="warning:" --implicit-check-not="remark:" --implicit-check-not="error:" %}
 
 #include <ripple.h>
 #include <ripple_math.h>
@@ -14,7 +16,7 @@ void reinterp_i32_to_i8(const int32_t *input, int8_t *output) {
   // 32 x i32 = 128 bytes -> 128 x i8
   auto BS_dst = ripple_set_block_shape(0, 128);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  int8_t result = ripple_reinterp_i8(BS_dst, val);
+  int8_t result = ripple_reinterp<int8_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -29,7 +31,7 @@ void reinterp_i32_to_i16(const int32_t *input, int16_t *output) {
   // 32 x i32 = 128 bytes -> 64 x i16
   auto BS_dst = ripple_set_block_shape(0, 64);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  int16_t result = ripple_reinterp_i16(BS_dst, val);
+  int16_t result = ripple_reinterp<int16_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -44,7 +46,7 @@ void reinterp_i32_2d_to_i8(const int32_t *input, int8_t *output) {
 
   auto BS_dst = ripple_set_block_shape(0, 256);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  int8_t result = ripple_reinterp_i8(BS_dst, val);
+  int8_t result = ripple_reinterp<int8_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -59,7 +61,7 @@ void reinterp_i32_to_i64(const int32_t *input, int64_t *output) {
   // 32 x i32 = 128 bytes -> 16 x i64
   auto BS_dst = ripple_set_block_shape(0, 16);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  int64_t result = ripple_reinterp_i64(BS_dst, val);
+  int64_t result = ripple_reinterp<int64_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -74,7 +76,7 @@ void reinterp_i16_to_u32(const int16_t *input, uint32_t *output) {
   // 64 x i16 = 128 bytes -> 32 x u32
   auto BS_dst = ripple_set_block_shape(0, 32);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  uint32_t result = ripple_reinterp_u32(BS_dst, val);
+  uint32_t result = ripple_reinterp<uint32_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -89,7 +91,7 @@ void reinterp_f32_to_i32(const float *input, int32_t *output) {
   // 32 x f32 = 128 bytes -> 32 x i32
   auto BS_dst = ripple_set_block_shape(0, 32);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  int32_t result = ripple_reinterp_i32(BS_dst, val);
+  int32_t result = ripple_reinterp<int32_t>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -104,7 +106,7 @@ void reinterp_i64_to_f64(const int64_t *input, double *output) {
   // 16 x i64 = 128 bytes -> 16 x f64
   auto BS_dst = ripple_set_block_shape(0, 16);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  double result = ripple_reinterp_f64(BS_dst, val);
+  double result = ripple_reinterp<double>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
@@ -119,9 +121,41 @@ void reinterp_f32_to_f64(const float *input, double *output) {
   // 32 x f32 = 128 bytes -> 16 x f64
   auto BS_dst = ripple_set_block_shape(0, 16);
   size_t v0_dst = ripple_id(BS_dst, 0);
-  double result = ripple_reinterp_f64(BS_dst, val);
+  double result = ripple_reinterp<double>(BS_dst, val);
   result = result * 2;
   output[v0_dst] = result;
 
   // CHECK: load <16 x double>, ptr %input
 }
+
+#if __has_Float16__
+void reinterp_f16_to_f64(const _Float16 *input, double *output) {
+  auto BS_src = ripple_set_block_shape(0, 64);
+  size_t v0 = ripple_id(BS_src, 0);
+  _Float16 val = input[v0];
+
+  auto BS_dst = ripple_set_block_shape(0, 16);
+  size_t v0_dst = ripple_id(BS_dst, 0);
+  double result = ripple_reinterp<double>(BS_dst, val);
+  result = result * 2;
+  output[v0_dst] = result;
+
+  // CHECK: load <16 x double>, ptr %input
+}
+#endif
+
+#if __has_bf16__
+void reinterp_bf16_to_f64(const __bf16 *input, double *output) {
+  auto BS_src = ripple_set_block_shape(0, 64);
+  size_t v0 = ripple_id(BS_src, 0);
+  __bf16 val = input[v0];
+
+  auto BS_dst = ripple_set_block_shape(0, 16);
+  size_t v0_dst = ripple_id(BS_dst, 0);
+  double result = ripple_reinterp<double>(BS_dst, val);
+  result = result * 2;
+  output[v0_dst] = result;
+
+  // BF16: load <16 x double>, ptr %input
+}
+#endif
