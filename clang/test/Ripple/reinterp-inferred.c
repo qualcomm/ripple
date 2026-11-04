@@ -70,7 +70,6 @@ void invalid(ripple_block_t block, Vec vector, struct Aggregate aggregate,
   __builtin_ripple_reinterp_f32(block, 1 == 1); // C has int; C++ has bool.
 }
 #ifdef __cplusplus
-// expected-error@-3 {{ripple reinterpretation requires an integer scalar}}
 void explicit_source_type(ripple_block_t block, int value) {
   ripple_reinterp_f32<float>(block, value); // expected-error {{use of undeclared identifier 'ripple_reinterp_f32'}} expected-warning {{use of function template name with no prior declaration in function call with explicit template arguments is a C++20 extension}}
 }

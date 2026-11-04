@@ -4105,6 +4105,7 @@ Sema::CheckBuiltinFunctionCall(FunctionDecl *FDecl, unsigned BuiltinID,
       return ExprError();
     break;
 
+  case Builtin::BI__builtin_ripple_reinterp_i1:
   case Builtin::BI__builtin_ripple_reinterp_i8:
   case Builtin::BI__builtin_ripple_reinterp_u8:
   case Builtin::BI__builtin_ripple_reinterp_i16:

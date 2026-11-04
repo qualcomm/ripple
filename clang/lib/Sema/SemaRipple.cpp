@@ -2003,7 +2003,7 @@ bool SemaRipple::CheckReinterpBuiltin(CallExpr *Call, unsigned BuiltinID) {
     unsigned Width = Context.getTypeSize(SourceTy);
     SupportedInteger = Width == 8 || Width == 16 || Width == 32 || Width == 64;
   }
-  if (!SupportedInteger &&
+  if (!SupportedInteger && !SourceTy->isBooleanType() &&
       !SourceTy->isSpecificBuiltinType(BuiltinType::Float) &&
       !SourceTy->isSpecificBuiltinType(BuiltinType::Double) &&
       !SourceTy->isSpecificBuiltinType(BuiltinType::Float16) &&
@@ -2019,6 +2019,7 @@ bool SemaRipple::CheckReinterpBuiltin(CallExpr *Call, unsigned BuiltinID) {
   case Builtin::BI__builtin_ripple_reinterp_##Suffix:                          \
     ResultTy = Type;                                                           \
     break;
+    REINTERP_RESULT(i1, Context.BoolTy)
     REINTERP_RESULT(i8, Context.getIntTypeForBitwidth(8, true))
     REINTERP_RESULT(u8, Context.getIntTypeForBitwidth(8, false))
     REINTERP_RESULT(i16, Context.getIntTypeForBitwidth(16, true))

@@ -221,6 +221,12 @@ def RippleToFixedVector : Builtin {
 }
 
 // Source types are inferred by custom checking, as for fixed-vector conversions.
+def RippleReinterpI1 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_i1"];
+  let Attributes = [NoThrow, CustomTypeChecking];
+  let Prototype = "void(...)";
+}
+
 def RippleReinterpI8 : Builtin {
   let Spellings = ["__builtin_ripple_reinterp_i8"];
   let Attributes = [NoThrow, CustomTypeChecking];
