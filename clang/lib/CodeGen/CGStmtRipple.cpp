@@ -518,34 +518,31 @@ RValue CodeGenFunction::emitRippleBuiltin(const CallExpr *E,
     /// --------------------------------------------------------------------------------------------
     /// Reinterp-specific Builtins Begin
 
-#define RIPPLE_REINTERP_CASE(Suffix)                                           \
-  CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_##Suffix) {                       \
-    Value *BlockShape = EmitScalarExpr(E->getArg(0));                          \
-    Value *FromEl = EmitScalarExpr(E->getArg(1));                              \
-    llvm::Function *F = CGM.getIntrinsic(                                      \
-        llvm::Intrinsic::ripple_reinterp_##Suffix, FromEl->getType());         \
-    llvm::Value *Result = Builder.CreateCall(F, {BlockShape, FromEl});         \
-    return RValue::get(Result);                                                \
+  case Builtin::BI__builtin_ripple_reinterp_i8:
+  case Builtin::BI__builtin_ripple_reinterp_u8:
+  case Builtin::BI__builtin_ripple_reinterp_i16:
+  case Builtin::BI__builtin_ripple_reinterp_u16:
+  case Builtin::BI__builtin_ripple_reinterp_i32:
+  case Builtin::BI__builtin_ripple_reinterp_u32:
+  case Builtin::BI__builtin_ripple_reinterp_i64:
+  case Builtin::BI__builtin_ripple_reinterp_u64:
+  case Builtin::BI__builtin_ripple_reinterp_f16:
+  case Builtin::BI__builtin_ripple_reinterp_bf16:
+  case Builtin::BI__builtin_ripple_reinterp_f32:
+  case Builtin::BI__builtin_ripple_reinterp_f64: {
+    Value *BlockShape = EmitScalarExpr(E->getArg(0));
+    Value *FromEl = EmitScalarExpr(E->getArg(1));
+    llvm::Type *DstTy = ConvertType(E->getType());
+    llvm::Intrinsic::ID ID = DstTy->isIntegerTy()
+                                 ? llvm::Intrinsic::ripple_reinterp_int
+                                 : llvm::Intrinsic::ripple_reinterp_float;
+    llvm::Function *F = CGM.getIntrinsic(ID, {DstTy, FromEl->getType()});
+    return RValue::get(Builder.CreateCall(F, {BlockShape, FromEl}));
   }
 
-    RIPPLE_REINTERP_CASE(i8)
-    RIPPLE_REINTERP_CASE(u8)
-    RIPPLE_REINTERP_CASE(i16)
-    RIPPLE_REINTERP_CASE(u16)
-    RIPPLE_REINTERP_CASE(i32)
-    RIPPLE_REINTERP_CASE(u32)
-    RIPPLE_REINTERP_CASE(i64)
-    RIPPLE_REINTERP_CASE(u64)
-    RIPPLE_REINTERP_CASE(f16)
-    RIPPLE_REINTERP_CASE(bf16)
-    RIPPLE_REINTERP_CASE(f32)
-    RIPPLE_REINTERP_CASE(f64)
-
-#undef RIPPLE_REINTERP_CASE
-
-    /// Reinterp-specific Builtins End
-    /// --------------------------------------------------------------------------------------------
-    /// Slicing-specific Builtins Begin
+  /// Reinterp-specific Builtins End
+  /// --------------------------------------------------------------------------------------------
+  /// Slicing-specific Builtins Begin
 
 #define RIPPLE_SLICE_MAX_ARGS 11
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(slice)

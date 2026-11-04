@@ -220,74 +220,75 @@ def RippleToFixedVector : Builtin {
   let Prototype = "void(...)";
 }
 
-def RippleReinterpI8 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_i8_"];
+// Source types are inferred by custom checking, as for fixed-vector conversions.
+def RippleReinterpI8 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_i8"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "char(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpI16 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_i16_"];
+def RippleReinterpI16 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_i16"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "short(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpI32 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_i32_"];
+def RippleReinterpI32 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_i32"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "int32_t(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpI64 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_i64_"];
+def RippleReinterpI64 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_i64"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "int64_t(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpU8 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_u8_"];
+def RippleReinterpU8 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_u8"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "unsigned char(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpU16 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_u16_"];
+def RippleReinterpU16 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_u16"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "unsigned short(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpU32 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_u32_"];
+def RippleReinterpU32 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_u32"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "uint32_t (void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpU64 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_u64_"];
+def RippleReinterpU64 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_u64"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "uint64_t (void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpF16 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_f16_"];
+def RippleReinterpF16 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_f16"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "_Float16(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpBF16 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_bf16_"];
+def RippleReinterpBF16 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_bf16"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "__bf16(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpF32 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_f32_"];
+def RippleReinterpF32 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_f32"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "float(void *, T)";
+  let Prototype = "void(...)";
 }
 
-def RippleReinterpF64 : Builtin, RippleAllTypesTemplate {
-  let Spellings = ["__builtin_ripple_reinterp_f64_"];
+def RippleReinterpF64 : Builtin {
+  let Spellings = ["__builtin_ripple_reinterp_f64"];
   let Attributes = [NoThrow, CustomTypeChecking];
-  let Prototype = "double(void *, T)";
+  let Prototype = "void(...)";
 }

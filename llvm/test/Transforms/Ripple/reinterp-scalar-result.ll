@@ -8,7 +8,7 @@ define i32 @vector_to_scalar_reinterpret(ptr %input) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i16, ptr %input, i32 %i
   %v = load i16, ptr %p, align 2
-  %r = call i32 @llvm.ripple.reinterp.u32.i16(ptr %dst, i16 %v)
+  %r = call i32 @llvm.ripple.reinterp.int.i32.i16(ptr %dst, i16 %v)
   ret i32 %r
 }
 ; CHECK-LABEL: define i32 @vector_to_scalar_reinterpret(
@@ -20,7 +20,7 @@ define i32 @vector_to_scalar_reinterpret(ptr %input) #0 {
 ; can be returned directly and broadcast into varying work.
 define float @scalar_to_scalar_reinterpret(i32 %bits, ptr %input, ptr %output) #0 {
   %scalar = call ptr @llvm.ripple.block.setshape.i32(i32 0, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1)
-  %r = call float @llvm.ripple.reinterp.f32.i32(ptr %scalar, i32 %bits)
+  %r = call float @llvm.ripple.reinterp.float.f32.i32(ptr %scalar, i32 %bits)
   %bs = call ptr @llvm.ripple.block.setshape.i32(i32 0, i32 19, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1)
   %i = call i32 @llvm.ripple.block.index.i32(ptr %bs, i32 0)
   %p = getelementptr float, ptr %input, i32 %i
@@ -40,6 +40,6 @@ define float @scalar_to_scalar_reinterpret(i32 %bits, ptr %input, ptr %output) #
 
 declare ptr @llvm.ripple.block.setshape.i32(i32 immarg, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32)
 declare i32 @llvm.ripple.block.index.i32(ptr, i32 immarg)
-declare i32 @llvm.ripple.reinterp.u32.i16(ptr, i16)
-declare float @llvm.ripple.reinterp.f32.i32(ptr, i32)
+declare i32 @llvm.ripple.reinterp.int.i32.i16(ptr, i16)
+declare float @llvm.ripple.reinterp.float.f32.i32(ptr, i32)
 attributes #0 = { nounwind }

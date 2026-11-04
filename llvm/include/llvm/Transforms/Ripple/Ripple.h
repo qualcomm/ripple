@@ -2069,6 +2069,9 @@ private:
   /// @brief Returns true if there are no vector dimensions, false otherwise
   bool hasNoVectorDimension() const;
 
+  /// @brief Checks intrinsic requirements before shape propagation or cleanup
+  Error precheckRippleIntrinsics();
+
   /// @brief Checks for any semantics issue with the use of ripple intrinsics or
   /// vectorization (if-conversion, impossible vector instruction generation,
   /// etc)
