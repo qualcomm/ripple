@@ -25,6 +25,7 @@ template <class T>
 using reinterpret_result = decltype(REINTERP(i16, (ripple_block_t)0, T{}));
 static_assert(__is_same(reinterpret_result<int>, short));
 static_assert(__is_same(reinterpret_result<unsigned short>, short));
+static_assert(__is_same(reinterpret_result<bool>, short));
 static_assert(__is_same(decltype(reinterpret_source((ripple_block_t)0,
                                                   short{})), float));
 

@@ -14295,7 +14295,7 @@ def note_acc_reduction_combiner_forming
 
 // Ripple diagnostics.
 def err_ripple_reinterp_type : Error<
-  "ripple reinterpretation requires an integer scalar of 8, 16, 32, or 64 bits, or a float, double, _Float16, or __bf16 scalar (current type is %0)">;
+  "ripple reinterpretation requires an integer scalar of 8, 16, 32, or 64 bits, a bool scalar, or a float, double, _Float16, or __bf16 scalar (current type is %0)">;
 def err_ripple_fixed_vector_type : Error<
   "ripple fixed-vector conversion requires %select{an integer or floating-point vector|an integer or floating-point scalar}0 (current type is %1)">;
 def err_ripple_fixed_vector_count : Error<

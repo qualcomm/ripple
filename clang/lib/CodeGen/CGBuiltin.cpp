@@ -7120,6 +7120,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(stack)
 
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reshape)
+  case Builtin::BI__builtin_ripple_reinterp_i1:
   case Builtin::BI__builtin_ripple_reinterp_i8:
   case Builtin::BI__builtin_ripple_reinterp_u8:
   case Builtin::BI__builtin_ripple_reinterp_i16:

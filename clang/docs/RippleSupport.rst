@@ -196,6 +196,30 @@ The source argument retains its type without the default promotions of a
 variadic call. For example, a ``short`` argument remains a 16-bit source on
 targets where ``short`` is 16 bits.
 
+``ripple_reinterp_i1(destination_block, value)`` returns ``bool`` in C23
+and C++, or ``_Bool`` in earlier C modes. Boolean sources are also accepted
+by all reinterpretation helpers. Each boolean element contributes one bit
+to the total block width, so reinterpreting four 32-bit elements as booleans
+requires a destination block of 128 elements. This preserves the packed bits;
+a cast to ``bool`` instead tests each element for zero.
+
+In C, including C23, relational and equality comparisons produce ``int``;
+in C++, they produce ``bool``. Reinterpreting a comparison directly therefore
+uses the bit width of ``int`` in C and one bit per element in C++. To use
+one bit per comparison in C, cast the result to ``bool`` or store it in a
+``bool`` variable before reinterpretation:
+
+.. code-block:: c
+
+   ripple_reinterp_f32(destination_block, (bool)(left == right));
+
+   bool mask = left == right;
+   ripple_reinterp_f32(destination_block, mask);
+
+Both forms use a boolean source in C and C++. In C modes before C23, use
+``_Bool`` or include ``<stdbool.h>`` to use the ``bool`` spelling. The source
+and destination blocks must still have equal total bit width.
+
 Ripple Code Generation
 ----------------------
 

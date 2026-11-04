@@ -1352,6 +1352,7 @@ __attribute__((always_inline)) static char ripple_reshape(ripple_block_t BS,
 
 // The destination type is fixed by the helper name. Infer the source type
 // without numeric conversion, and preserve the total bit width of the block.
+#define ripple_reinterp_i1(BS, Val) __builtin_ripple_reinterp_i1((BS), (Val))
 #define ripple_reinterp_i8(BS, Val) __builtin_ripple_reinterp_i8((BS), (Val))
 #define ripple_reinterp_u8(BS, Val) __builtin_ripple_reinterp_u8((BS), (Val))
 #define ripple_reinterp_i16(BS, Val) __builtin_ripple_reinterp_i16((BS), (Val))
@@ -1376,7 +1377,9 @@ template <typename T, typename Val>
 T ripple_reinterp(ripple_block_t BS, Val V) {
   using RawT = typename __RippleTyTraits::remove_cv<T>::type;
 
-  if constexpr (__is_integral(RawT) && !__is_same(RawT, bool)) {
+  if constexpr (__is_same(RawT, bool)) {
+    return ripple_reinterp_i1(BS, V);
+  } else if constexpr (__is_integral(RawT)) {
     if constexpr (sizeof(RawT) == 1) {
       if constexpr (__is_signed(RawT))
         return ripple_reinterp_i8(BS, V);
@@ -1420,8 +1423,7 @@ T ripple_reinterp(ripple_block_t BS, Val V) {
                   "unsupported float width in ripple reinterpet cast");
     }
   } else {
-      static_assert(__is_integral(RawT) && !__is_same(RawT, bool)  ||
-                      __is_floating_point(T),
+      static_assert(__is_integral(RawT) || __is_floating_point(RawT),
               "Expected integral or floating point type to ripple reinterpret");
   }
 }
