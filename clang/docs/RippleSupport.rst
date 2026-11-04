@@ -135,6 +135,67 @@ Ripple builtins are defined in ``BuiltinsRipple.td`` using TableGen templates:
 - Builtins are lowered to LLVM intrinsics in ``CGStmtRipple.cpp``.
 - Semantic checks are performed in ``SemaRipple::CheckBuiltinFunctionCall``.
 
+Ripple Reinterpretation
+----------------------
+
+The ``ripple_reinterp_*`` helpers reinterpret a Ripple value's bits as a
+different element type. For example, reinterpret a block of four 32-bit
+integer bit patterns as single-precision floats:
+
+.. code-block:: c
+
+   #include <stddef.h>
+   #include <stdint.h>
+   #include <ripple.h>
+
+   void reinterpret_block(float *output) {
+     static const uint32_t input[] = {0x3f800000, 0x40000000, 0x40400000,
+                                      0x40800000};
+     ripple_block_t block = ripple_set_block_shape(0, 4);
+     size_t lane = ripple_id(block, 0);
+     uint32_t bits = input[lane];
+     output[lane] = ripple_reinterp_f32(block, bits);
+   }
+
+Input bit patterns ``{0x3f800000, 0x40000000, 0x40400000, 0x40800000}`` produce
+the IEEE 754 float values ``{1.0f, 2.0f, 3.0f, 4.0f}``. A scalar cast such as
+``(float)bits`` instead converts each integer numerically. The source and
+destination blocks must have equal total bit width; in this example, each
+contains four 32-bit elements.
+
+Changing the element width also changes the destination block shape. On
+targets supporting ``_Float16``, four 32-bit source elements can be
+reinterpreted as eight 16-bit destination elements; both blocks contain
+128 bits:
+
+.. code-block:: c
+
+   void reinterpret_half_block(_Float16 *output) {
+     static const uint32_t input[] = {0x40003c00, 0x44004200, 0x46004500,
+                                      0x48004700};
+     ripple_block_t source = ripple_set_block_shape(0, 4);
+     ripple_block_t destination = ripple_set_block_shape(0, 8);
+     size_t source_lane = ripple_id(source, 0);
+     size_t destination_lane = ripple_id(destination, 0);
+     uint32_t bits = input[source_lane];
+     output[destination_lane] = ripple_reinterp_f16(destination, bits);
+   }
+
+On little-endian targets, these packed bit patterns produce the
+half-precision values ``{1.0f16, 2.0f16, 3.0f16, 4.0f16, 5.0f16, 6.0f16,
+7.0f16, 8.0f16}``.
+
+The destination type is explicit in the helper name, for example
+``ripple_reinterp_i16(destination_block, value)``. The compiler infers the
+source type from ``value`` without numeric conversion. Integer destinations
+use the target-selected types for their specified bit widths. The ``i8``
+destination returns ``signed char`` even when plain ``char`` is unsigned on
+the target.
+
+The source argument retains its type without the default promotions of a
+variadic call. For example, a ``short`` argument remains a 16-bit source on
+targets where ``short`` is 16 bits.
+
 Ripple Code Generation
 ----------------------
 

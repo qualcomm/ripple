@@ -17,7 +17,7 @@ define void @aligned_pack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i16, ptr %input, i32 %i
   %v = load i16, ptr %p, align 2
-  %r = call i32 @llvm.ripple.reinterp.u32.i16(ptr %dst, i16 %v)
+  %r = call i32 @llvm.ripple.reinterp.int.i32.i16(ptr %dst, i16 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i32, ptr %output, i32 %j
   store i32 %r, ptr %q, align 4
@@ -34,7 +34,7 @@ define void @aligned_unpack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i32, ptr %input, i32 %i
   %v = load i32, ptr %p, align 4
-  %r = call i16 @llvm.ripple.reinterp.u16.i32(ptr %dst, i32 %v)
+  %r = call i16 @llvm.ripple.reinterp.int.i16.i32(ptr %dst, i32 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i16, ptr %output, i32 %j
   store i16 %r, ptr %q, align 2
@@ -52,7 +52,7 @@ define void @padded_pack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i16, ptr %input, i32 %i
   %v = load i16, ptr %p, align 2
-  %r = call i32 @llvm.ripple.reinterp.u32.i16(ptr %dst, i16 %v)
+  %r = call i32 @llvm.ripple.reinterp.int.i32.i16(ptr %dst, i16 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i32, ptr %output, i32 %j
   store i32 %r, ptr %q, align 4
@@ -72,7 +72,7 @@ define void @padded_unpack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i32, ptr %input, i32 %i
   %v = load i32, ptr %p, align 4
-  %r = call i16 @llvm.ripple.reinterp.u16.i32(ptr %dst, i32 %v)
+  %r = call i16 @llvm.ripple.reinterp.int.i16.i32(ptr %dst, i32 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i16, ptr %output, i32 %j
   store i16 %r, ptr %q, align 2
@@ -138,7 +138,7 @@ define void @predicate_pack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i1, ptr %input, i32 %i
   %v = load i1, ptr %p, align 1
-  %r = call i8 @llvm.ripple.reinterp.u8.i1(ptr %dst, i1 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i1(ptr %dst, i1 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i8, ptr %output, i32 %j
   store i8 %r, ptr %q, align 1
@@ -161,7 +161,7 @@ define void @odd_width_pack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i3, ptr %input, i32 %i
   %v = load i3, ptr %p, align 1
-  %r = call i8 @llvm.ripple.reinterp.u8.i3(ptr %dst, i3 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i3(ptr %dst, i3 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i8, ptr %output, i32 %j
   store i8 %r, ptr %q, align 1
@@ -187,7 +187,7 @@ define void @composite_width_pack(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i12, ptr %input, i32 %i
   %v = load i12, ptr %p, align 1
-  %r = call i8 @llvm.ripple.reinterp.u8.i12(ptr %dst, i12 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i12(ptr %dst, i12 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i8, ptr %output, i32 %j
   store i8 %r, ptr %q, align 1
@@ -212,7 +212,7 @@ define void @round_down_preserves_all_lanes(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i12, ptr %input, i32 %i
   %v = load i12, ptr %p, align 1
-  %r = call i8 @llvm.ripple.reinterp.u8.i12(ptr %dst, i12 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i12(ptr %dst, i12 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i8, ptr %output, i32 %j
   store i8 %r, ptr %q, align 1
@@ -233,7 +233,7 @@ define void @source_padded_wider(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i3, ptr %input, i32 %i
   %v = load i3, ptr %p, align 1
-  %r = call i8 @llvm.ripple.reinterp.u8.i3(ptr %dst, i3 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i3(ptr %dst, i3 %v)
   %j = call i32 @llvm.ripple.block.index.i32(ptr %dst, i32 0)
   %q = getelementptr i8, ptr %output, i32 %j
   store i8 %r, ptr %q, align 1
@@ -297,7 +297,7 @@ define i32 @native_vector_to_scalar(<2 x i16> %native, ptr %input, ptr %output) 
 ; vector/vector padding helper's assert and retain its exact 32-bit width.
 define void @scalar_reinterpret(i32 %bits, ptr %output) #0 {
   %bs = call ptr @llvm.ripple.block.setshape.i32(i32 0, i32 4, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1)
-  %r = call i8 @llvm.ripple.reinterp.u8.i32(ptr %bs, i32 %bits)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i32(ptr %bs, i32 %bits)
   %i = call i32 @llvm.ripple.block.index.i32(ptr %bs, i32 0)
   %q = getelementptr i8, ptr %output, i32 %i
   store i8 %r, ptr %q, align 1
@@ -318,7 +318,7 @@ define void @vector_reinterpret(ptr %input, ptr %output) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %bs, i32 0)
   %p = getelementptr i32, ptr %input, i32 %i
   %v = load i32, ptr %p, align 4
-  %r = call float @llvm.ripple.reinterp.f32.i32(ptr %bs, i32 %v)
+  %r = call float @llvm.ripple.reinterp.float.f32.i32(ptr %bs, i32 %v)
   %q = getelementptr float, ptr %output, i32 %i
   store float %r, ptr %q, align 4
   ret void
@@ -338,7 +338,7 @@ define i32 @padded_vector_to_scalar_bitcast(ptr %input) #0 {
   %i = call i32 @llvm.ripple.block.index.i32(ptr %src, i32 0)
   %p = getelementptr i16, ptr %input, i32 %i
   %v = load i16, ptr %p, align 2
-  %r = call i32 @llvm.ripple.reinterp.u32.i16(ptr %dst, i16 %v)
+  %r = call i32 @llvm.ripple.reinterp.int.i32.i16(ptr %dst, i16 %v)
   ret i32 %r
 }
 ; CHECK-LABEL: define i32 @padded_vector_to_scalar_bitcast(
@@ -352,11 +352,11 @@ define i32 @padded_vector_to_scalar_bitcast(ptr %input) #0 {
 declare ptr @llvm.ripple.block.setshape.i32(i32 immarg, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32)
 declare i32 @llvm.ripple.block.index.i32(ptr, i32 immarg)
 declare i16 @llvm.ripple.from.fixed.vector.v2i16(ptr, <2 x i16>)
-declare float @llvm.ripple.reinterp.f32.i32(ptr, i32)
-declare i8 @llvm.ripple.reinterp.u8.i32(ptr, i32)
-declare i32 @llvm.ripple.reinterp.u32.i16(ptr, i16)
-declare i16 @llvm.ripple.reinterp.u16.i32(ptr, i32)
-declare i8 @llvm.ripple.reinterp.u8.i1(ptr, i1)
-declare i8 @llvm.ripple.reinterp.u8.i3(ptr, i3)
-declare i8 @llvm.ripple.reinterp.u8.i12(ptr, i12)
+declare float @llvm.ripple.reinterp.float.f32.i32(ptr, i32)
+declare i8 @llvm.ripple.reinterp.int.i8.i32(ptr, i32)
+declare i32 @llvm.ripple.reinterp.int.i32.i16(ptr, i16)
+declare i16 @llvm.ripple.reinterp.int.i16.i32(ptr, i32)
+declare i8 @llvm.ripple.reinterp.int.i8.i1(ptr, i1)
+declare i8 @llvm.ripple.reinterp.int.i8.i3(ptr, i3)
+declare i8 @llvm.ripple.reinterp.int.i8.i12(ptr, i12)
 attributes #0 = { nounwind }

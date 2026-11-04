@@ -4,7 +4,6 @@
 // RUN: %if x86-registered-target %{ %clangxx -I %S/../../lib/Headers/ripple_include -S -fenable-ripple -fno-discard-value-names -Rpass-missed=ripple --target=x86_64-unknown-linux-gnu -O2 -emit-llvm %s -o - 2>&1 | FileCheck %s --check-prefixes=CHECK,BF16 --implicit-check-not="warning:" --implicit-check-not="remark:" --implicit-check-not="error:" %}
 
 #include <ripple.h>
-#include <ripple_math.h>
 
 #include "ripple_test.h"
 

@@ -3,7 +3,7 @@
 
 ; Reinterpret has cross-lane semantics before the Ripple pass.  Convergent
 ; blocks transforms such as nontrivial loop unswitching from cloning it.
-declare i8 @llvm.ripple.reinterp.i8.i32(ptr, i32)
+declare i8 @llvm.ripple.reinterp.int.i8.i32(ptr, i32)
 declare i32 @printf(...)
 
 ; CHECK-LABEL: @test(
@@ -26,11 +26,11 @@ else:
 
 merge:
   %v = phi i32 [ 42, %then ], [ 100, %else ]
-  %r = call i8 @llvm.ripple.reinterp.i8.i32(ptr %BS, i32 %v)
+  %r = call i8 @llvm.ripple.reinterp.int.i8.i32(ptr %BS, i32 %v)
   %p = call i32 (...) @printf(i8 %r)
   br label %latch
 
-; CHECK-COUNT-1:         call i8 @llvm.ripple.reinterp.i8.i32
+; CHECK-COUNT-1:         call i8 @llvm.ripple.reinterp.int.i8.i32
 ; CHECK-COUNT-1:         call i32 (...) @printf
 
 latch:

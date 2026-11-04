@@ -4105,6 +4105,21 @@ Sema::CheckBuiltinFunctionCall(FunctionDecl *FDecl, unsigned BuiltinID,
       return ExprError();
     break;
 
+  case Builtin::BI__builtin_ripple_reinterp_i8:
+  case Builtin::BI__builtin_ripple_reinterp_u8:
+  case Builtin::BI__builtin_ripple_reinterp_i16:
+  case Builtin::BI__builtin_ripple_reinterp_u16:
+  case Builtin::BI__builtin_ripple_reinterp_i32:
+  case Builtin::BI__builtin_ripple_reinterp_u32:
+  case Builtin::BI__builtin_ripple_reinterp_i64:
+  case Builtin::BI__builtin_ripple_reinterp_u64:
+  case Builtin::BI__builtin_ripple_reinterp_f16:
+  case Builtin::BI__builtin_ripple_reinterp_bf16:
+  case Builtin::BI__builtin_ripple_reinterp_f32:
+  case Builtin::BI__builtin_ripple_reinterp_f64:
+    if (Ripple().CheckReinterpBuiltin(TheCall, BuiltinID))
+      return ExprError();
+    break;
   case Builtin::BI__builtin_ripple_from_fixed_vector:
   case Builtin::BI__builtin_ripple_to_fixed_vector:
     if (Ripple().CheckFixedVectorBuiltin(TheCall, BuiltinID))

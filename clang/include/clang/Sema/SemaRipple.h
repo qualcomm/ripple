@@ -75,6 +75,8 @@ public:
 
   bool CheckFixedVectorBuiltin(CallExpr *Call, unsigned BuiltinID);
 
+  bool CheckReinterpBuiltin(CallExpr *Call, unsigned BuiltinID);
+
   struct AnnotationData {
     SourceRange DimsRange;
     UnqualifiedId BlockShape;

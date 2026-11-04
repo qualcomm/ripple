@@ -7120,18 +7120,18 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(stack)
 
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reshape)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_i8)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_u8)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_i16)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_u16)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_i32)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_u32)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_i64)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_u64)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_f16)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_bf16)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_f32)
-    CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(reinterp_f64)
+  case Builtin::BI__builtin_ripple_reinterp_i8:
+  case Builtin::BI__builtin_ripple_reinterp_u8:
+  case Builtin::BI__builtin_ripple_reinterp_i16:
+  case Builtin::BI__builtin_ripple_reinterp_u16:
+  case Builtin::BI__builtin_ripple_reinterp_i32:
+  case Builtin::BI__builtin_ripple_reinterp_u32:
+  case Builtin::BI__builtin_ripple_reinterp_i64:
+  case Builtin::BI__builtin_ripple_reinterp_u64:
+  case Builtin::BI__builtin_ripple_reinterp_f16:
+  case Builtin::BI__builtin_ripple_reinterp_bf16:
+  case Builtin::BI__builtin_ripple_reinterp_f32:
+  case Builtin::BI__builtin_ripple_reinterp_f64:
     CASE_RIPPLE_ALL_INT_FLOAT_BUILTIN(shuffle)
   case Builtin::BI__builtin_ripple_shuffle_p:
 

@@ -1975,6 +1975,70 @@ bool SemaRipple::CheckFixedVectorBuiltin(CallExpr *Call, unsigned BuiltinID) {
   return false;
 }
 
+bool SemaRipple::CheckReinterpBuiltin(CallExpr *Call, unsigned BuiltinID) {
+  if (SemaRef.checkArgCount(Call, 2))
+    return true;
+
+  auto &Context = SemaRef.Context;
+  for (unsigned I = 0; I < Call->getNumArgs(); ++I) {
+    // Apply function/array decay and lvalue-to-rvalue conversion without
+    // numeric promotions, preserving the source type and bit width.
+    ExprResult Arg =
+        SemaRef.DefaultFunctionArrayLvalueConversion(Call->getArg(I));
+    if (Arg.isInvalid())
+      return true;
+    Call->setArg(I, Arg.get());
+    if (Arg.get()->isTypeDependent()) {
+      Call->setType(Context.DependentTy);
+      return false;
+    }
+  }
+  if (CheckHasRippleBlockType(Call->getArg(0), BuiltinID))
+    return true;
+
+  QualType SourceTy = Call->getArg(1)->getType();
+  bool SupportedInteger = false;
+  if (SourceTy->isBuiltinType() && SourceTy->isIntegerType() &&
+      !SourceTy->isBooleanType()) {
+    unsigned Width = Context.getTypeSize(SourceTy);
+    SupportedInteger = Width == 8 || Width == 16 || Width == 32 || Width == 64;
+  }
+  if (!SupportedInteger &&
+      !SourceTy->isSpecificBuiltinType(BuiltinType::Float) &&
+      !SourceTy->isSpecificBuiltinType(BuiltinType::Double) &&
+      !SourceTy->isSpecificBuiltinType(BuiltinType::Float16) &&
+      !SourceTy->isSpecificBuiltinType(BuiltinType::BFloat16)) {
+    SemaRef.Diag(Call->getArg(1)->getExprLoc(), diag::err_ripple_reinterp_type)
+        << SourceTy;
+    return true;
+  }
+
+  QualType ResultTy;
+  switch (BuiltinID) {
+#define REINTERP_RESULT(Suffix, Type)                                          \
+  case Builtin::BI__builtin_ripple_reinterp_##Suffix:                          \
+    ResultTy = Type;                                                           \
+    break;
+    REINTERP_RESULT(i8, Context.getIntTypeForBitwidth(8, true))
+    REINTERP_RESULT(u8, Context.getIntTypeForBitwidth(8, false))
+    REINTERP_RESULT(i16, Context.getIntTypeForBitwidth(16, true))
+    REINTERP_RESULT(u16, Context.getIntTypeForBitwidth(16, false))
+    REINTERP_RESULT(i32, Context.getIntTypeForBitwidth(32, true))
+    REINTERP_RESULT(u32, Context.getIntTypeForBitwidth(32, false))
+    REINTERP_RESULT(i64, Context.getIntTypeForBitwidth(64, true))
+    REINTERP_RESULT(u64, Context.getIntTypeForBitwidth(64, false))
+    REINTERP_RESULT(f16, Context.Float16Ty)
+    REINTERP_RESULT(bf16, Context.BFloat16Ty)
+    REINTERP_RESULT(f32, Context.FloatTy)
+    REINTERP_RESULT(f64, Context.DoubleTy)
+#undef REINTERP_RESULT
+  default:
+    llvm_unreachable("unexpected Ripple reinterpretation builtin");
+  }
+  Call->setType(ResultTy);
+  return false;
+}
+
 bool SemaRipple::CheckHasRippleBlockType(const Expr *E, unsigned BuiltinID) {
   auto *ENoCast = E->IgnoreParenImpCasts();
   bool HasValidRippleBlockShapeType = false;

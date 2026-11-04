@@ -77,32 +77,22 @@ def int_ripple_to_fixed_vector :
     [LLVMVectorElementType<0>],
     [IntrNoMem, IntrConvergent, IntrWillReturn]>;
 
+// Reinterpret the source tensor's bits using the destination block shape in
+// the first argument. The return type specifies the destination element type;
+// the second argument retains the source element type. Ripple checks equal
+// total block bit widths and lowers the operation to a bitcast. A scalar
+// destination block lowers to a scalar LLVM value, including when packing a
+// vector-shaped source into one element.
 // Keep IntrConvergent: changing the element width can remap bits between
 // logical lanes (see comment on top).
-def int_ripple_reinterp_i8  : DefaultAttrsIntrinsic<[llvm_i8_ty],  [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_u8  : DefaultAttrsIntrinsic<[llvm_i8_ty],  [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_i16 : DefaultAttrsIntrinsic<[llvm_i16_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_u16 : DefaultAttrsIntrinsic<[llvm_i16_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_i32 : DefaultAttrsIntrinsic<[llvm_i32_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_u32 : DefaultAttrsIntrinsic<[llvm_i32_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_i64 : DefaultAttrsIntrinsic<[llvm_i64_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_u64 : DefaultAttrsIntrinsic<[llvm_i64_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_f16  : DefaultAttrsIntrinsic<[llvm_half_ty],   [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_bf16 : DefaultAttrsIntrinsic<[llvm_bfloat_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_f32  : DefaultAttrsIntrinsic<[llvm_float_ty],  [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
-def int_ripple_reinterp_f64  : DefaultAttrsIntrinsic<[llvm_double_ty], [llvm_ptr_ty, llvm_any_ty],
-                               [IntrNoMem, IntrConvergent, IntrWillReturn]>;
+// Both families overload on destination and source types. LLVM verifies scalar
+// destination types; Ripple checks that sources are scalar integers or floats.
+def int_ripple_reinterp_int : DefaultAttrsIntrinsic<
+    [llvm_any_scalar_int_ty], [llvm_ptr_ty, llvm_any_ty],
+    [IntrNoMem, IntrConvergent, IntrWillReturn]>;
+def int_ripple_reinterp_float : DefaultAttrsIntrinsic<
+    [llvm_any_scalar_float_ty], [llvm_ptr_ty, llvm_any_ty],
+    [IntrNoMem, IntrConvergent, IntrWillReturn]>;
 
 // RIpple tensor reduction operator;
 // The first argument is a bitset to represent which dimensions are being
