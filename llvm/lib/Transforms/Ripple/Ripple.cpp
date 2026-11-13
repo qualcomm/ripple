@@ -4586,10 +4586,12 @@ void Ripple::genVectorInstructions() {
     Type *DstVecTy =
         VectorType::get(ElemTy, toShape.flatShape(), /*Scalable=*/false);
 
-    // Emit a bitcast to reinterpret the flat vector under the new shape.
-    Value *BitCast = irBuilder.CreateBitCast(
-        ReshapedVal, DstVecTy,
-        tensorizedName(rippleReshape->getName(), toShape));
+    // Keep a distinct view even when the flat LLVM vector types match.
+    // A folding bitcast would relabel the source value's shape, including
+    // loop PHIs whose incoming values are populated after vectorization.
+    Value *BitCast = irBuilder.Insert(new BitCastInst(ReshapedVal, DstVecTy),
+                                     tensorizedName(rippleReshape->getName(),
+                                                    toShape));
 
     setReplacementFor(rippleReshape, BitCast, toShape);
   };

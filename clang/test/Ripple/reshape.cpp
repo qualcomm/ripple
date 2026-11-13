@@ -75,3 +75,27 @@ void reshape_i16_1d_to_2d(int16_t input[16], int16_t output[16]) {
 
   output[v0_dst + 4 * v1_dst] = reshaped;
 }
+
+// Reshaping a loop-carried value must preserve the original PHI's shape.
+// The flat LLVM vector type is identical for both views; reusing the PHI as
+// the reshape result used to overwrite its shape and fail during PHI fixup.
+//
+// CHECK-LABEL: define{{.*}} void @reshape_loop(
+// CHECK-DAG:   phi <32 x float>
+// CHECK-DAG:   shufflevector <32 x float>
+// CHECK-DAG:   fadd <32 x float>
+// CHECK-DAG:   store <32 x float>
+// CHECK-NOT:   ripple.reshape
+static size_t rotate_two(size_t dst, size_t n) { return (dst + 2) % n; }
+extern "C" void reshape_loop(const float *input, float *output, unsigned steps) {
+  ripple_block_t B = ripple_set_block_shape(VECTOR_LANE, 2, 16);
+  ripple_block_t flatB = ripple_set_block_shape(VECTOR_LANE, 32);
+  size_t index = 2 * ripple_id(B, 1) + ripple_id(B, 0);
+  float value = input[index];
+  for (unsigned i = 0; i < steps; ++i) {
+    float flat = ripple_reshape(flatB, value);
+    float rotated = ripple_shuffle(flat, rotate_two);
+    value += ripple_reshape(B, rotated);
+  }
+  output[index] = value;
+}
