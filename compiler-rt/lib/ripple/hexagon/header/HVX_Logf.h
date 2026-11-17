@@ -35,6 +35,8 @@ float logf(float);
 float log1pf(float);
 float log2f(float);
 float log10f(float);
+// Dinkumware helper exposed by the Hexagon SDK logarithm inlines.
+float _FLog(float, int);
 float acoshf(float);
 float asinhf(float);
 float atanhf(float);
@@ -364,6 +366,16 @@ RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_log2f(f32t32 vx) {
 
 RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_log10f(f32t32 vx) {
   return __ripple_log_log2f_and_scale(vx, 0.3010299956639812f);
+}
+
+// See Dinkumware libc's _FLog base selector: zero selects natural log,
+// positive selects base-10 log, and negative selects base-2 log.
+// The SDK float overloads use 0/1/-1, respectively.
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure__FLog(f32t32 x, int base) {
+  const float LN2 = 0.6931471805599453f;
+  const float LOG10_2 = 0.3010299956639812f;
+  const float scale = base == 0 ? LN2 : base > 0 ? LOG10_2 : 1.0f;
+  return __ripple_log_log2f_and_scale(x, scale);
 }
 
 // returns true only if the bitwise representation of an ieee754 fp16 number is

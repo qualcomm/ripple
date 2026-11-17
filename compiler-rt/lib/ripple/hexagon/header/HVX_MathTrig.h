@@ -35,6 +35,8 @@ extern "C" {
 float sinf(float);
 float cosf(float);
 float tanf(float);
+// Dinkumware helper exposed by the Hexagon SDK sin/cos inlines.
+float _FSin(float, unsigned int);
 #ifdef __cplusplus
 }
 #endif
@@ -423,7 +425,10 @@ RIPPLE_INTRIN_INLINE float __ripple_trig_cotf_on_absx_le_pi_by_4(float x) {
   return y;
 }
 
-RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_sinf(f32t32 vx) {
+// Evaluate sine with a quadrant offset modulo four. Sine and cosine use
+// offsets zero and one, respectively.
+RIPPLE_INTRIN_INLINE f32t32
+__ripple_trig_sinf_with_quadrant(f32t32 vx, unsigned int quadrant_offset) {
   ripple_block_t BS = ripple_set_block_shape(0, 32);
   float x = _VEC_TO_RIPPLE(32, float, BS, vx);
   i32t32 vquadrant;
@@ -431,6 +436,7 @@ RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_sinf(f32t32 vx) {
       32, float, BS,
       __ripple_trig_paynehanekf(_RIPPLE_TO_VEC(32, float, BS, x), &vquadrant));
   int quadrant = _VEC_TO_RIPPLE(32, int, BS, vquadrant);
+  quadrant += (int)(quadrant_offset & 3u);
 
   // Select the reduced polynomial and sign from the quadrant bits.
   // Two selects also avoid a four-way branch in header candidates.
@@ -439,26 +445,21 @@ RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_sinf(f32t32 vx) {
   float y = (quadrant & 1) ? cosine : sine;
   y = (quadrant & 2) ? -y : y;
 
+  // Preserve input NaNs and return a positive quiet NaN for infinities.
+  if (__builtin_isnan(x))
+    y = x;
+  else if (__builtin_isinf(x))
+    y = ripple_broadcast(BS, 0b1, __builtin_nanf(""));
+
   return _RIPPLE_TO_VEC(32, float, BS, y);
 }
 
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_sinf(f32t32 vx) {
+  return __ripple_trig_sinf_with_quadrant(vx, 0);
+}
+
 RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_cosf(f32t32 vx) {
-  ripple_block_t BS = ripple_set_block_shape(0, 32);
-  float x = _VEC_TO_RIPPLE(32, float, BS, vx);
-  i32t32 vquadrant;
-  float r = _VEC_TO_RIPPLE(
-      32, float, BS,
-      __ripple_trig_paynehanekf(_RIPPLE_TO_VEC(32, float, BS, x), &vquadrant));
-  int quadrant = _VEC_TO_RIPPLE(32, int, BS, vquadrant);
-
-  // Select the reduced polynomial and sign from the quadrant bits.
-  // Two selects also avoid a four-way branch in header candidates.
-  float sine = __ripple_trig_sinf_on_absx_le_pi_by_4(r);
-  float cosine = __ripple_trig_cosf_on_absx_le_pi_by_4(r);
-  float y = (quadrant & 1) ? sine : cosine;
-  y = ((quadrant + 1) & 2) ? -y : y;
-
-  return _RIPPLE_TO_VEC(32, float, BS, y);
+  return __ripple_trig_sinf_with_quadrant(vx, 1);
 }
 
 RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_tanf(f32t32 vx) {
@@ -486,6 +487,14 @@ RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_tanf(f32t32 vx) {
   }
 
   return _RIPPLE_TO_VEC(32, float, BS, y);
+}
+
+// Dinkumware libc's _FSin uses a quadrant offset modulo four:
+// 0: sin(x), 1: cos(x), 2: -sin(x), 3: -cos(x).
+// The SDK float overloads use 0/1 for sin/cos, respectively.
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure__FSin(f32t32 vx,
+                                                    unsigned int quadrant) {
+  return __ripple_trig_sinf_with_quadrant(vx, quadrant);
 }
 
 #undef _RIPPLE_TO_VEC
