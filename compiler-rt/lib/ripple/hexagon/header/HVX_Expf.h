@@ -39,6 +39,9 @@ float exp2f(float);
 float exp10f(float);
 float coshf(float);
 float sinhf(float);
+// Dinkumware helpers exposed by the Hexagon SDK math inlines.
+float _FCosh(float, float);
+float _FSinh(float, float);
 #ifdef __cplusplus
 }
 #endif
@@ -387,6 +390,47 @@ RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_pure_sinhf(f32t32 vx) {
   }
   y = is_neg ? -y : y;
   return _RIPPLE_TO_VEC(32, float, BS, y);
+}
+
+// The SDK inlines coshf/sinhf as _FCosh/_FSinh(x, 1.0f). Reuse the
+// standard vector candidates for that unit scale. Other scales must retain
+// SDK handling: multiplying an overflowing cosh/sinh result by a small scale
+// can overflow even when the scaled result is representable.
+// The scalar SDK fallback can affect errno and floating-point exceptions, so
+// only call it for active lanes.
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_mask__FCosh(f32t32 x, float scale,
+                                                  i32t32 mask) {
+  if (scale == 1.0f)
+    return ripple_ew_pure_coshf(x);
+  f32t32 result = {0};
+  for (unsigned i = 0; i < sizeof(x) / sizeof(float); ++i)
+    if (mask[i])
+      result[i] = _FCosh(x[i], scale);
+  return result;
+}
+
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew_mask__FSinh(f32t32 x, float scale,
+                                                  i32t32 mask) {
+  if (scale == 1.0f)
+    return ripple_ew_pure_sinhf(x);
+  f32t32 result = {0};
+  for (unsigned i = 0; i < sizeof(x) / sizeof(float); ++i)
+    if (mask[i])
+      result[i] = _FSinh(x[i], scale);
+  return result;
+}
+
+// Full blocks use the same kernels with all lanes active. LLVM optimizations
+// inline the masked helper into each wrapper and remove its all-ones mask
+// checks before Ripple inlines the wrapper into its caller.
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew__FCosh(f32t32 x, float scale) {
+  i32t32 mask = {0};
+  return ripple_ew_mask__FCosh(x, scale, ~mask);
+}
+
+RIPPLE_CANDIDATE_INLINE f32t32 ripple_ew__FSinh(f32t32 x, float scale) {
+  i32t32 mask = {0};
+  return ripple_ew_mask__FSinh(x, scale, ~mask);
 }
 
 #undef _RIPPLE_TO_VEC
