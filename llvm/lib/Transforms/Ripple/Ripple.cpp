@@ -2993,18 +2993,26 @@ void Ripple::padToTargetSIMDWidth() {
       // worklist, let the call-boundary handling below narrow its arguments.
       bool IsNonIntrinsicCall = isa<CallInst>(I) && !isa<IntrinsicInst>(I);
       if (ShapeI.isScalar() && !IsNonIntrinsicCall) {
+        // These checks only pad scalar extractions and reductions of Ripple
+        // tensors. Native vector arguments and constants may have no Ripple
+        // tensor shape, so strict getRippleShape() would abort on them.
+        // ShapePropagation=true returns an ignored (scalar) shape for those
+        // operands, while preserving tensor shapes assigned to arguments of
+        // pending specializations.
         if (auto *ExtractElementI = dyn_cast<ExtractElementInst>(I)) {
           auto *VecOperand = ExtractElementI->getVectorOperand();
           auto PaddedLength = GetPaddedLength(VecOperand);
 
-          if (getRippleShape(VecOperand).isVector() &&
+          if (getRippleShape(VecOperand, /*ShapePropagation=*/true)
+                  .isVector() &&
               AnyValuesKnownToBeMustPadded({VecOperand}, PaddedLength))
             MustBePadded.insert(I);
         }
         if (auto *ReduceI = CastToReductionIntrinsic(I)) {
           auto *VecOperand = ReduceI->getOperand(getReduceOperandIdx(ReduceI));
           auto PaddedLength = GetPaddedLength(VecOperand);
-          if (getRippleShape(VecOperand).isVector() &&
+          if (getRippleShape(VecOperand, /*ShapePropagation=*/true)
+                  .isVector() &&
               AnyValuesKnownToBeMustPadded({VecOperand}, PaddedLength))
             MustBePadded.insert(I);
         }
